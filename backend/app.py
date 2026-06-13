@@ -9,6 +9,8 @@ import cv2
 import tempfile
 
 CONFIDENCE_THRESHOLD = 0.15
+MAX_INFERENCE_DIMENSION = 1280
+YOLO_IMGSZ = 640
 
 BASE_DIR = os.path.dirname(
     os.path.abspath(__file__)
@@ -85,6 +87,61 @@ def get_severity(confidence: float) -> str:
     return "Low"
 
 
+def prepare_image_for_inference(image_path: str) -> None:
+    """
+    Downscale very large uploads before YOLO inference.
+
+    Phone and camera photos (3000x4000, 4K, etc.) allocate large OpenCV
+    and PyTorch tensors during decode, inference, and annotation. Capping the
+    longest side at 1280 px preserves aspect ratio, keeps dent detail usable,
+    and lowers peak RAM on memory-limited hosts such as Render Free (512 MB).
+    """
+
+    image = cv2.imread(image_path)
+
+    if image is None:
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid or unreadable image file"
+        )
+
+    original_height, original_width = image.shape[:2]
+    print(
+        f"Original image: {original_width}x{original_height}"
+    )
+
+    longest_side = max(
+        original_width,
+        original_height
+    )
+
+    if longest_side <= MAX_INFERENCE_DIMENSION:
+        print(
+            "Image size acceptable, no resize performed."
+        )
+        return
+
+    scale = MAX_INFERENCE_DIMENSION / longest_side
+    new_width = int(round(original_width * scale))
+    new_height = int(round(original_height * scale))
+
+    # INTER_AREA is preferred when shrinking images to limit aliasing.
+    resized_image = cv2.resize(
+        image,
+        (new_width, new_height),
+        interpolation=cv2.INTER_AREA
+    )
+
+    cv2.imwrite(
+        image_path,
+        resized_image
+    )
+
+    print(
+        f"Resized image: {new_width}x{new_height}"
+    )
+
+
 @app.get("/")
 def root():
 
@@ -149,9 +206,12 @@ async def predict(
             buffer
         )
 
+    prepare_image_for_inference(image_path)
+
     results = model.predict(
         source=image_path,
         conf=CONFIDENCE_THRESHOLD,
+        imgsz=YOLO_IMGSZ,
         verbose=False,
         save=False
     )
