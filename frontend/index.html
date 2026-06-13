@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="api-base" content="http://127.0.0.1:8000">
+    <title>Car Damage Detector</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<main class="app">
+
+    <header class="app-header">
+        <h1>Car Damage Detector</h1>
+        <p class="subtitle">
+            Upload a vehicle image to detect and analyze damage using YOLO.
+        </p>
+    </header>
+
+    <section class="card upload-card">
+        <div class="upload-area">
+            <input
+                type="file"
+                id="imageInput"
+                accept="image/*"
+                hidden
+            >
+            <label for="imageInput" class="upload-label">
+                Choose Image
+            </label>
+            <span id="fileName" class="file-name">
+                No file selected
+            </span>
+            <button
+                id="detectButton"
+                type="button"
+            >
+                Detect Damage
+            </button>
+            <p id="loadingMessage" class="loading hidden">
+                Analyzing image...
+            </p>
+        </div>
+    </section>
+
+    <section id="originalSection" class="card hidden">
+        <h2 class="card-title">Original Image</h2>
+        <div class="image-frame">
+            <img
+                id="originalPreview"
+                alt="Original uploaded image"
+            >
+        </div>
+    </section>
+
+    <section id="detectionSection" class="card hidden">
+        <h2 class="card-title">Detection Result</h2>
+        <div class="image-frame">
+            <img
+                id="detectionPreview"
+                alt="YOLO detection result"
+            >
+        </div>
+    </section>
+
+    <section id="analysisSection" class="card hidden">
+        <h2 class="card-title">Analysis</h2>
+        <div id="analysisContent"></div>
+    </section>
+
+    <section class="card model-info-card">
+        <h2 class="card-title">Model Information</h2>
+        <dl class="model-info-list">
+            <div class="model-info-item">
+                <dt>Model</dt>
+                <dd>YOLOv8n</dd>
+            </div>
+            <div class="model-info-item">
+                <dt>Task</dt>
+                <dd>Car Damage Detection</dd>
+            </div>
+            <div class="model-info-item">
+                <dt>Framework</dt>
+                <dd>Ultralytics YOLO</dd>
+            </div>
+            <div class="model-info-item">
+                <dt>Confidence Threshold</dt>
+                <dd>15%</dd>
+            </div>
+        </dl>
+    </section>
+
+</main>
+
+<script src="script.js"></script>
+
+</body>
+</html>

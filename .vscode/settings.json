@@ -1,0 +1,13 @@
+{
+  "liveServer.settings.root": "/frontend",
+  "liveServer.settings.ignoreFiles": [
+    "**/.vscode/**",
+    "**/.git/**",
+    "**/backend/**",
+    "**/uploads/**",
+    "**/predictions/**",
+    "**/models/**",
+    "**/venv/**",
+    "**/__pycache__/**"
+  ]
+}
