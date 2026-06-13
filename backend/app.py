@@ -6,6 +6,7 @@ import shutil
 import os
 import uuid
 import cv2
+import tempfile
 
 CONFIDENCE_THRESHOLD = 0.15
 
@@ -15,18 +16,21 @@ BASE_DIR = os.path.dirname(
 
 PROJECT_ROOT = os.path.dirname(BASE_DIR)
 
-MODEL_PATH = os.path.join(
-    PROJECT_ROOT,
-    "models",
-    "yolo_damage_detector.pt"
+MODEL_PATH = os.environ.get(
+    "MODEL_PATH",
+    os.path.join(
+        PROJECT_ROOT,
+        "models",
+        "yolo_damage_detector.pt"
+    )
 )
 
-_DATA_ROOT = os.path.join(
-    os.environ.get(
-        "LOCALAPPDATA",
-        os.environ.get("TEMP", ".")
-    ),
-    "car_damage_detector"
+_DATA_ROOT = os.environ.get(
+    "DATA_DIR",
+    os.path.join(
+        tempfile.gettempdir(),
+        "car_damage_detector"
+    )
 )
 
 UPLOAD_FOLDER = os.path.join(
