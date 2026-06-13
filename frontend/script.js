@@ -1,6 +1,8 @@
 const API_BASE =
-    document.querySelector('meta[name="api-base"]')?.content
-    || "http://127.0.0.1:8000";
+    document.querySelector('meta[name="api-base"]')?.content?.trim()
+    || "https://car-damage-detector-5z60.onrender.com";
+
+console.log("API_BASE:", API_BASE);
 
 const imageInput = document.getElementById("imageInput");
 const fileName = document.getElementById("fileName");
@@ -68,9 +70,14 @@ function renderAnalysis(data) {
                     <article class="damage-item">
                         <h3>Damage #${index + 1}</h3>
                         <div class="damage-meta">
-                            <span>Confidence: ${formatConfidence(detection.confidence)}</span>
+                            <span>
+                                Confidence:
+                                ${formatConfidence(detection.confidence)}
+                            </span>
+
                             <span class="${getSeverityClass(detection.severity)}">
-                                Severity: ${detection.severity}
+                                Severity:
+                                ${detection.severity}
                             </span>
                         </div>
                     </article>
@@ -87,26 +94,39 @@ function renderAnalysis(data) {
 
     analysisContent.innerHTML = `
         <div class="stats-row">
+
             <div class="stat-item">
                 <span>Damage Found:</span>
-                <span class="${damageBadgeClass}">${damageBadgeText}</span>
+                <span class="${damageBadgeClass}">
+                    ${damageBadgeText}
+                </span>
             </div>
+
             <div class="stat-item">
                 <span>Damage Count:</span>
-                <span class="badge badge-neutral">${data.damage_count}</span>
+                <span class="badge badge-neutral">
+                    ${data.damage_count}
+                </span>
             </div>
+
         </div>
+
         ${damagesHtml}
     `;
 }
 
 imageInput.addEventListener("change", function () {
+
     const file = imageInput.files[0];
 
     if (!file) {
+
         fileName.textContent = "No file selected";
+
         hideSection(originalSection);
+
         clearResults();
+
         return;
     }
 
@@ -115,27 +135,38 @@ imageInput.addEventListener("change", function () {
     }
 
     previewObjectUrl = URL.createObjectURL(file);
+
     originalPreview.src = previewObjectUrl;
+
     fileName.textContent = file.name;
 
     showSection(originalSection);
+
     clearResults();
 });
 
 detectButton.addEventListener("click", async function () {
+
     const file = imageInput.files[0];
 
     if (!file) {
+
         alert("Please select an image.");
+
         return;
     }
 
     const formData = new FormData();
-    formData.append("file", file);
+
+    formData.append(
+        "file",
+        file
+    );
 
     setLoading(true);
 
     try {
+
         const response = await fetch(
             `${API_BASE}/predict`,
             {
@@ -145,20 +176,33 @@ detectButton.addEventListener("click", async function () {
         );
 
         if (!response.ok) {
-            throw new Error(`Prediction failed with status ${response.status}`);
+
+            throw new Error(
+                `Prediction failed with status ${response.status}`
+            );
         }
 
         const data = await response.json();
 
-        detectionPreview.src = `${API_BASE}${data.prediction_image_url}`;
+        detectionPreview.src =
+            `${API_BASE}${data.prediction_image_url}?t=${Date.now()}`;
+
         showSection(detectionSection);
 
         renderAnalysis(data);
+
         showSection(analysisSection);
+
     } catch (error) {
+
         console.error(error);
-        alert("Failed to analyze the image. Please try again.");
+
+        alert(
+            "Failed to analyze the image. Please try again."
+        );
+
     } finally {
+
         setLoading(false);
     }
 });
