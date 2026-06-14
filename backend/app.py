@@ -1,7 +1,7 @@
 from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
-from ultralytics import YOLO
+from onnx_inference import YoloOnnxDetector
 import shutil
 import os
 import uuid
@@ -9,6 +9,7 @@ import cv2
 import tempfile
 
 CONFIDENCE_THRESHOLD = 0.15
+IOU_THRESHOLD = 0.7
 MAX_INFERENCE_DIMENSION = 1280
 YOLO_IMGSZ = 640
 
@@ -23,7 +24,7 @@ MODEL_PATH = os.environ.get(
     os.path.join(
         PROJECT_ROOT,
         "models",
-        "yolo_damage_detector.pt"
+        "yolo_damage_detector.onnx"
     )
 )
 
@@ -70,10 +71,15 @@ os.makedirs(
 
 if not os.path.isfile(MODEL_PATH):
     raise FileNotFoundError(
-        f"YOLO model not found at {MODEL_PATH}"
+        f"YOLO ONNX model not found at {MODEL_PATH}"
     )
 
-model = YOLO(MODEL_PATH)
+detector = YoloOnnxDetector(
+    MODEL_PATH,
+    conf_threshold=CONFIDENCE_THRESHOLD,
+    iou_threshold=IOU_THRESHOLD,
+    imgsz=YOLO_IMGSZ
+)
 
 
 def get_severity(confidence: float) -> str:
@@ -208,37 +214,31 @@ async def predict(
 
     prepare_image_for_inference(image_path)
 
-    results = model.predict(
-        source=image_path,
-        conf=CONFIDENCE_THRESHOLD,
-        imgsz=YOLO_IMGSZ,
-        verbose=False,
-        save=False
-    )
+    try:
+        confidences, annotated_image = detector.detect(image_path)
+    except ValueError as error:
+        raise HTTPException(
+            status_code=400,
+            detail=str(error)
+        ) from error
 
     detections = []
-    boxes = results[0].boxes
 
-    if boxes is not None:
+    for confidence in confidences:
+        rounded_confidence = round(
+            float(confidence),
+            3
+        )
 
-        for box in boxes:
-
-            confidence = round(
-                float(box.conf[0]),
-                3
-            )
-
-            detections.append({
-                "confidence": confidence,
-                "severity": get_severity(confidence)
-            })
+        detections.append({
+            "confidence": rounded_confidence,
+            "severity": get_severity(rounded_confidence)
+        })
 
     detections.sort(
         key=lambda item: item["confidence"],
         reverse=True
     )
-
-    annotated_image = results[0].plot()
 
     prediction_path = os.path.join(
         PREDICTION_FOLDER,
