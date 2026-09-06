@@ -200,19 +200,19 @@ Car_Damage_Detector/
 
 ### Home Page
 
-![Home Page](screenshots/home-page.png)
+![Home Page](images/home-page.png)
 
 ---
 
 ### Image Uploaded
 
-![Image Uploaded](screenshots/image-uploaded.png)
+![Image Uploaded](images/image-uploaded.png)
 
 ---
 
 ### Damage Detection Result
 
-![Damage Detection](screenshots/damage-detected.png)
+![Damage Detection](images/damage-detected.png)
 
 ---
 
