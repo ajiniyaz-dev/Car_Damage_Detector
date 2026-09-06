@@ -1,8 +1,8 @@
-# 🚗 Car Damage Detector
+# Car Damage Detector
 
 ## Overview
 
-Car Damage Detector is a machine learning web application that automatically detects visible vehicle damage from uploaded images.
+Car Damage Detector is a machine learning web application that automatically detects visible car damage from uploaded images.
 
 The system uses a custom-trained YOLOv8n object detection model that has been optimized and deployed using ONNX Runtime for efficient inference and reduced memory consumption.
 
@@ -216,12 +216,6 @@ Car_Damage_Detector/
 
 ---
 
-### Multiple Damage Detection
-
-![Multiple Damage Detection](screenshots/multiple-damages.png)
-
----
-
 ## Installation
 
 ### Clone Repository
@@ -255,8 +249,6 @@ venv\Scripts\activate
 ```bash
 source venv/bin/activate
 ```
-
----
 
 ### Install Dependencies
 
@@ -324,7 +316,6 @@ Potential future enhancements include:
 * Multiple damage categories
 * Vehicle part detection
 * Repair cost estimation
-* Damage severity prediction using additional models
 * Video-based damage detection
 * User authentication and history tracking
 * Cloud storage integration
@@ -334,13 +325,6 @@ Potential future enhancements include:
 ## Author
 
 **Ajiniyaz Bazarbaev**
-
-Information Technology Student
-
-Machine Learning and Artificial Intelligence Enthusiast
-
 ---
-
-## License
 
 This project is intended for educational, research, and portfolio purposes.
